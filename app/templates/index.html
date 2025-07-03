@@ -1,37 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Live Chat</title>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
-        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Potato Chat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
 
-    <body>
-        <h1>Live Chat</h1>
+<body>
+    <header>
+        <h1>Potato Chat</h1>
+        <p>using websocket for realtime messages.</p>
+    </header>
+    <main>
         <div id="chat"></div>
-        <div class="flex-container">
-            <input id="message-input" placeholder="Type your message...">
+        <div class="input-container">
+            <input id="message-input" placeholder="Type your message..." autofocus>
             <button id="message-send">Send</button>
         </div>
+    </main>
 
-        <script>
-            const socket = io();
+    <script>
+        const socket = io();
+        const msgIpt = document.getElementById('message-input');
+        const sendBtn = document.getElementById('message-send');
+        const sendMessage = () => {
+            const message = msgIpt.value.trim();
+            if (message.length > 0) {
+                socket.emit('send_message', { msg: message });
+            }
+            msgIpt.value = '';
+        }
 
-            document.getElementById('message-send').onclick = function () {
-                const messageInput = document.getElementById('message-input').value;
-                socket.emit('send_message', { msg: messageInput });
-                document.getElementById('messageInput').value = '';
-            };
+        msgIpt.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        sendBtn.addEventListener('click', sendMessage);
 
-            socket.on('receive_message', function (data) {
-                const chat = document.getElementById('chat');
-                chat.innerHTML += `<div>${data.msg}</div>`;
-                chat.scrollTop = chat.scrollHeight;
-            });
-        </script>
-    </body>
+        socket.on('receive_message', function (data) {
+            const chat = document.getElementById('chat');
+            if (data.system) {
+                chat.innerHTML += `<div class="system">${data.msg}</div>`;
+            } else {
+                chat.innerHTML += `<div class="user">${data.msg}</div>`;
+            }
+            chat.scrollTop = chat.scrollHeight;
+        });
+    </script>
+</body>
 
 </html>
