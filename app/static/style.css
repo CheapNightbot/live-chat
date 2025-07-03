@@ -1,0 +1,16 @@
+body {
+    color: #F1F1F1;
+    background: #1B1B1B;
+}
+
+#chat {
+    border: 1px solid #ccc;
+    height: 400px;
+    overflow-y: scroll;
+    padding: 10px;
+}
+
+
+#message-input {
+    width: 80%;
+}
